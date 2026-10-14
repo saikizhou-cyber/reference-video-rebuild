@@ -19,7 +19,8 @@ The first release with the motion library.
 
 ### Verified
 - Type-check and lint clean; every demo renders; re-rendering a frame is pixel-identical for 89 effects and within 2 levels for 17.
-- Two blind A/B trials of a 12-second trailer: the film made with the skill was preferred over the one made without it, in both viewing orders (one brief, model judges).
+- Blind A/B on a 12-second trailer brief: two versions of the skill, each judged against the same film made without it, in both viewing orders. All four verdicts picked the skill's film (one on a tied overall score). One brief, one no-skill film, model judges.
+- Determinism report: `library/previews/determinism.txt`.
 
 ## 0.2.0 · 2026-10-08
 
