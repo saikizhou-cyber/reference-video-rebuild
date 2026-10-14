@@ -14,7 +14,9 @@ check  takes the cut list (src/core/timeline.ts under --root, or --frames) and r
        frames, and lists the strongest accents that no cut uses (candidates for a cut or a hit). Run it
        after swapping the music: a new track does not hit the old cut points by itself. Baseline from the
        case study: the reference's own cuts sit within +-2 frames of its music's accents 40 times out of 56
-       (median offset +0.6 frames), so aim for a similar share rather than for every cut.
+       (median offset +0.6 frames), so aim for a similar share rather than for every cut. On a bare click
+       or metronome every beat is an accent: a pass then only proves the cuts are on the grid, not that they
+       fall on anything musical, and the "unused accents" list is just the other clicks.
 
 Onsets are a log spectral flux (numpy/scipy only, no librosa); 23 ms resolution at 22.05 kHz, finer than
 one 30 fps frame. Checked on synthetic tracks at 87 / 120 / 150 BPM: tempo within 0.03 BPM, first beat
@@ -126,17 +128,24 @@ def cmd_grid(a):
         phase %= period
     bpm = 60 / period
     beats = np.arange(phase, t[-1], period)
+    if phase - period > -0.5 / a.fps:  # the beat just before the first grid point still lands on frame 0 (a hit at t = 0)
+        beats = np.insert(beats, 0, max(0.0, phase - period))
     frames = np.round(beats * a.fps).astype(int)
+    fpb = period * a.fps
+    # animation steps ("tick") must divide the beat or hits drift off it: whole divisors of frames per beat
+    ticks = [d for d in range(2, int(round(fpb)) + 1) if abs(fpb - round(fpb)) < 0.05 and round(fpb) % d == 0]
     # on-onset = share of grid beats that land on a strong onset; a steady beat scores high even when
     # hats and fills add many off-grid onsets
     print(f'grid: {bpm:.2f} BPM, first beat {phase:.3f} s, {period * a.fps:.2f} frames per beat, on-onset {p:.0%}'
           + ('  (weak pulse: cut on phrases and hits, not on a forced grid)' if p < 0.6 else ''))
     print('beat frames: ' + ' '.join(map(str, frames[:48])) + (' ...' if len(frames) > 48 else ''))
+    if ticks:
+        print(f'tick candidates (whole divisors of {round(fpb)} frames per beat, for a bible "tick"): ' + ', '.join(map(str, ticks)))
     if a.json:
         os.makedirs(os.path.dirname(os.path.abspath(a.json)), exist_ok=True)
         with open(a.json, 'w', encoding='utf-8') as fh:
             json.dump({'bpm': round(bpm, 3), 'first_beat_s': round(phase, 4), 'frames_per_beat': round(period * a.fps, 3),
-                       'on_onset': round(p, 3), 'f_score': round(f, 3), 'fps': a.fps, 'beat_frames': frames.tolist()}, fh, indent=1)
+                       'on_onset': round(p, 3), 'f_score': round(f, 3), 'fps': a.fps, 'tick_candidates': ticks, 'beat_frames': frames.tolist()}, fh, indent=1)
         print(f'-> {a.json}')
 
 

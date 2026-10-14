@@ -1,6 +1,6 @@
 # Deliver mode: render, master, verify, bundle
 
-Use when a Remotion project's shots are approved and the film must be rendered, accepted and handed over. It takes the output of any mode; checks marked (ref) need a reference video (rebuild). `R§n` = section n of `pipeline-recipes.md` (full commands: R§7 render and delivery, R§8 retrospective). Run from the Remotion project root; the tools assume composition `PV`, 1280x720, 30 fps (`render-chunks.mjs` reads `PV_COMP`, `compare.py` takes `--comp`). Cross-mode iron rules (show results not process, say what was not verified) are in SKILL.md.
+Use when a project's shots are approved and the film must be rendered, accepted and handed over (Remotion by default: `render-chunks.mjs` runs `npx remotion render`; the QA scripts take any video file). It takes the output of any mode; checks marked (ref) need a reference video (rebuild). `R§n` = section n of `pipeline-recipes.md` (full commands: R§7 render and delivery, R§8 retrospective). Run from the Remotion project root; the tools assume composition `PV`, 1280x720, 30 fps (`render-chunks.mjs` reads `PV_COMP`, `compare.py` takes `--comp`). Cross-mode iron rules (show results not process, say what was not verified) are in SKILL.md.
 
 ## 1. Render in chunks
 
@@ -21,8 +21,9 @@ Use when a Remotion project's shots are approved and the film must be rendered, 
 | Check | Command | Pass |
 |---|---|---|
 | Size, frames, duration | `ffprobe -v error -show_entries stream=width,height,nb_frames -show_entries format=duration -of compact out/pv.mp4` | expected resolution, `nb_frames` = `DURATION_FRAMES`, duration = frames / 30 |
-| A/V sync (ref) | `audio_offset.py <ref> out/pv.mp4` | 0 ms; only meaningful while the film still carries the reference track |
-| Freezes, black, flash frames | `film_scan.py out/pv.mp4 --ref <ref>` | every `OURS ONLY` event explained or fixed; `both` = intended; also covers chunk seams |
+| Pixel format and colour tags | `ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt,color_range,color_space -of default=nw=1 out/pv.mp4` | `yuv420p`, `tv`, `bt709`. `yuvj420p` / `pc` (with at most a `bt470bg` matrix tag) means JPEG frames: render with `--image-format=png --color-space=bt709` (`render-chunks.mjs` and `library/remotion.config.ts` already do) |
+| A/V sync | `audio_offset.py <music.wav or ref> out/pv.mp4` | 0 ms against the track the film was joined with (the reference track while timing against a reference). Remotion's own audio mux can run ~40 ms late: render muted and join with `render-chunks.mjs --join` |
+| Freezes, black, flash frames | `film_scan.py out/pv.mp4 [--ref <ref>] [--allow freeze:S16,black:S14]` | every `OURS ONLY` event explained or fixed (or, without a reference, every event judged); `both` = intended; `--allow` lists the holds and black beats the design asks for; also covers chunk seams |
 | Per-shot motion vs the reference (ref) | same `film_scan.py --ref` run (needs `src/core/timeline.ts`) | no shot flagged much stiller or busier |
 | Cuts vs music accents | `beat_check.py check <music>` | close to the +-2-frame baseline in section 2 |
 | Sharpness | 100% crop of a few frames | no soft or re-scaled layers |

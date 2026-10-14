@@ -1,0 +1,31 @@
+{
+	"name": "s17-motion-library",
+	"private": true,
+	"description": "Code-only motion effects for Remotion PVs and trailers (s17-motion-art). Copy an effect file plus core/ into your project, or run the gallery here.",
+	"license": "MIT",
+	"scripts": {
+		"studio": "remotion studio gallery/index.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "python gallery/lint.py",
+		"previews": "node gallery/previews.mjs --check && python gallery/determinism.py out/previews && python gallery/sheet.py out/previews previews",
+		"catalog": "python gallery/catalog.py out/previews && python gallery/notices.py"
+	},
+	"dependencies": {
+		"@remotion/bundler": "4.0.530",
+		"@remotion/cli": "4.0.530",
+		"@remotion/layout-utils": "4.0.530",
+		"@remotion/noise": "4.0.530",
+		"@remotion/paths": "4.0.530",
+		"@remotion/renderer": "4.0.530",
+		"@remotion/shapes": "4.0.530",
+		"@remotion/transitions": "4.0.530",
+		"gsap": "^3.15.0",
+		"react": "19.2.0",
+		"react-dom": "19.2.0",
+		"remotion": "4.0.530"
+	},
+	"devDependencies": {
+		"@types/react": "19.2.2",
+		"typescript": "5.9.3"
+	}
+}

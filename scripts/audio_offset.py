@@ -3,7 +3,7 @@
 usage: python audio_offset.py <reference.mp4> <ours.mp4> [--seconds 30]
 Prints the lag of `ours` against the reference in milliseconds (0 ms = in sync) and the peak strength.
 Positive = ours audio is late (starts after the reference), negative = early.
-Only meaningful while both carry the same music (e.g. the reference track used for local timing checks).
+Only meaningful while both carry the same music: the reference track used for local timing checks, or the music.wav the film was joined with (any file ffmpeg can read audio from).
 """
 import argparse
 import subprocess

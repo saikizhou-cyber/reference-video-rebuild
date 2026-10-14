@@ -1,6 +1,6 @@
 # Asset cards and identity lock (realize mode)
 
-In realize mode the user names the characters, props and scenes. This skill makes the motion in code (Remotion: camera, transitions, kinetic type, rhythm); AI only makes the still art. A **card** pins one character, prop or scene to a locked reference so every still generated for it stays the same thing across shots. Cards cover stills only. A generated clip is an optional small extra, and only from an approved still.
+In realize mode the user names the characters, props and scenes. This skill makes the motion in code (Remotion by default: camera, transitions, kinetic type, rhythm); AI only makes the still art. A **card** pins one character, prop or scene to a locked reference so every still generated for it stays the same thing across shots. Cards cover stills only. A generated clip is an optional small extra, and only from an approved still.
 
 Anchors must be the user's own or original designs (SKILL.md: original content only); a frame of a reference video is never an anchor. "Recipes" below means `references/pipeline-recipes.md`; `$SKILL` is set there.
 
@@ -114,4 +114,4 @@ Purpose: an empty, locked scene (establishing view plus two camera angles) with 
 2. **Two routes.** *Cutout (default):* the character or prop on a flat backdrop, then `cutout.py` + `cleanedge.py` (or `bluekey.py` for a flat-blue 16:9 frame; recipes section 5), composited over the scene plate in Remotion, so camera moves, parallax, shadows, grading and every transition are code. *Frame:* character and scene drawn whole in one picture, only when their light interplay matters; identity drifts more, so run the section 1 checks harder.
 3. **Gate:** compare against the anchor (section 1) before the still goes into the project. Composite the cutout on the plate and check edges at 100% (halo, 1-px lines).
 4. **Slot:** record the adopted still in the project's per-shot slot: `characters.<id>.shots[]` with `shot, src, mode, focus` (recipes section 3). Props and scene plates mirror the same fields under their own keys in the zod config (`src, focus, flip, overlays`); do not invent a second convention. Consecutive shots of one figure share a single placement constant (SKILL.md rule 4).
-5. **Motion stays in code:** animate the slot's layers in Remotion. Ask for a clip only for a pose the user has accepted as a still, and key it with `bluekey.py` (recipes sections 4 and 5).
+5. **Motion stays in code:** animate the slot's layers in code (Remotion by default). Ask for a clip only for a pose the user has accepted as a still, and key it with `bluekey.py` (recipes sections 4 and 5).

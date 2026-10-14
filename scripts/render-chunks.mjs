@@ -8,6 +8,8 @@
 //   PV_COMP   composition id            (default PV)
 //   PV_SCALE  1.5 renders 1920x1080 from a 1280x720 composition; every layer is re-rasterised, not upscaled
 //   PV_CONC   render concurrency        (default 3; use 2 if a chunk dies with `write EOF`)
+//   PV_IMAGE_FORMAT  png (default) or jpeg. JPEG frames make Remotion tag the video yuvj420p full range, untagged, which some
+//             players show with shifted colours; png + bt709 gives yuv420p tagged bt709. jpeg is only faster.
 //   PV_AUDIO  audio file muxed on --join (default public/audio/bgm.wav)
 //   PV_LUFS   e.g. -14: master the music to that loudness on --join (two-pass loudnorm, true peak -1 dBTP)
 //
@@ -95,6 +97,6 @@ if (args[0] === '--join') {
 	for (const r of args) {
 		const from = r.split('-')[0];
 		const scale = process.env.PV_SCALE ? ` --scale=${process.env.PV_SCALE}` : '';
-		execSync(`npx remotion render ${comp} out/seg_${from}.mp4 --codec=h264 --crf=16 --muted --frames=${r} --concurrency=${process.env.PV_CONC ?? 3} --timeout=240000${scale}`, {stdio: 'inherit'});
+		execSync(`npx remotion render ${comp} out/seg_${from}.mp4 --codec=h264 --crf=16 --image-format=${process.env.PV_IMAGE_FORMAT ?? 'png'} --color-space=bt709 --muted --frames=${r} --concurrency=${process.env.PV_CONC ?? 3} --timeout=240000${scale}`, {stdio: 'inherit'});
 	}
 }

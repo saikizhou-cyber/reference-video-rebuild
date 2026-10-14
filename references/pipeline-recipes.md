@@ -9,6 +9,8 @@ export REF_VIDEO=../reference.mp4                              # used by compare
 ffmpeg -i in.mp4 -vf fps=30,scale=1280:720 -an ../reference.mp4
 ```
 
+Environment variables the scripts read: `PV_ROOT` (project root for the scripts that read `src/core/timeline.ts`; default the current folder), `PV_COMP` (composition id, default `PV`), `PV_AUDIO` (track muxed on `--join`, default `public/audio/bgm.wav`), `PV_LUFS` (loudness target), `PV_SCALE` (1.5 = 1080p, 0.5 = quick draft), `PV_CONC` (render concurrency, default 3), `PV_IMAGE_FORMAT` (`png` default, `jpeg` is faster but yuvj420p), `PV_RENDER_SLOTS` (parallel renders in `compare.py`, default 3), `REF_VIDEO`, `JIMENG_CLI`, `JIMENG_PROJECT_ID`, `CLAUDE_CONFIG_DIR` (`transcript_stats.py`).
+
 ## 1. Reference frames and comparison
 
 ```bash
@@ -31,6 +33,10 @@ npx remotion render PV out/seq --sequence --image-format=jpeg
 python $SKILL/scripts/grid.py out/seq out/review/grid --which first      # every shot, 3 per row
 python $SKILL/scripts/shotsheet.py out/seq out/review/shots --which mid   # one row per shot
 python $SKILL/scripts/strip.py out/seq out/review/s54.jpg 940 950 1       # motion of one passage
+# a film with NO reference (create mode): contact sheets of the render itself
+python $SKILL/scripts/contact_sheet.py out/pv.mp4 -o out/review/shots.png            # one tile per shot of timeline.ts
+python $SKILL/scripts/contact_sheet.py out/pv.mp4 -o out/review/cuts.png --cuts      # both sides of every cut
+python $SKILL/scripts/contact_sheet.py out/pv.mp4 -o out/review/beats.png --beats out/beats.json   # the frame on every beat
 node $SKILL/scripts/side-by-side.mjs "$REF_VIDEO" out/pv.mp4               # timing, local only
 ```
 
@@ -52,7 +58,7 @@ python $SKILL/scripts/motion_fit.py "$REF_VIDEO" --from 789 --to 801 --color 254
 - **The same figure across shots**: measure the bbox in every shot, choose one target from the reference, then put the numbers in one shared constant, e.g.
   `export const CLIMAX_HERO = {face: [275, 492], faceH: 34.3, lean: 6};` and use it in each shot (and in the flash frames between them) instead of per-shot copies.
 - **Colours from the real frame.** A user's screenshot may be gamma-lifted (pure black looked like #111); sample the decoded frame.
-- **Text planes**: fit a homography to the four corners of the reference's text block and apply it as a CSS `matrix3d`.
+- **Text planes**: fit a homography to the four corners of the reference's text block and apply it as a CSS `matrix3d` (a manual step: no script does it; solve the 8-unknown linear system with NumPy from the four corner pairs).
 
 ## 3. Per-shot art slot (character swap)
 
@@ -97,7 +103,7 @@ python $SKILL/scripts/jm.py node create image --project-id $JIMENG_PROJECT_ID --
 tools/.venv-cutout/Scripts/python $SKILL/scripts/cutout.py in.png cut.png   # POSIX: tools/.venv-cutout/bin/python
 python $SKILL/scripts/cleanedge.py in.png cut.png out.png 1           # de-halo + erode 1 px
 python $SKILL/scripts/bluekey.py frame.png out.png 38 80              # flat-blue 16:9 frame -> alpha
-python $SKILL/scripts/hairfix.py in.mp4 out.mp4 0.55                  # pull drifted brown hair back to near-black
+python $SKILL/scripts/hairfix.py in.mp4 out.mp4 0.55                  # example for one character: pulls drifted brown hair back to near-black; edit the hue / threshold constants for yours
 python $SKILL/scripts/irisglow.py in.mp4 out.mp4 0.95 1.2             # dull iris before the eyes open, ignite after
 ```
 
@@ -118,7 +124,7 @@ Play the result at rate 1. Check interpolated frames for ghosting around hair; f
 PV_SCALE=1.5 PV_CONC=2 node $SKILL/scripts/render-chunks.mjs 0-359 360-719 720-899 900-1078
 PV_AUDIO=public/audio/bgm.wav PV_LUFS=-14 node $SKILL/scripts/render-chunks.mjs --join   # -> out/pv.mp4, music mastered
 ffprobe -v error -show_entries stream=width,height,nb_frames -show_entries format=duration -of compact out/pv.mp4
-python $SKILL/scripts/audio_offset.py "$REF_VIDEO" out/pv.mp4      # 0 ms while timing against the reference track
+python $SKILL/scripts/audio_offset.py music.wav out/pv.mp4          # 0 ms against the joined track ("$REF_VIDEO" while timing against a reference)
 python $SKILL/scripts/film_scan.py out/pv.mp4 --ref "$REF_VIDEO"   # freezes / black / flashes the reference lacks
 python $SKILL/scripts/beat_check.py grid music.wav                 # tempo grid before cutting to new music
 python $SKILL/scripts/beat_check.py check music.wav                # after a music swap: cuts vs accents

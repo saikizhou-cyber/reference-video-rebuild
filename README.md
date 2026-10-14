@@ -33,6 +33,23 @@
 - `beat_check.py` 测音乐的拍点网格，检查切点是否落在重音上。
 - `film_scan.py` 扫出成片里原片没有的静止、黑帧、闪白，以及比原片"更死"或"更躁"的镜头。
 
+## 🧩 106 个现成动效（`library/`）
+
+全部是代码，逐帧确定，按 720p 单位写、任意分辨率都能用，每个都有缩略预览和一句"什么时候用"。用 `python library/gallery/pick.py <id>,<id> --to src/s17` 只复制用到的特效（连同它们引用的 `core/` 部分，并打印需要装的 npm 包），改参数就能用。不限于 Remotion 自带的包：three.js、GSAP、anime.js、Lottie、WebGL、canvas 都能用，只要动画由帧号驱动（时间线暂停后按帧定位，不让库自己走时钟）。
+
+| 类别 | 数量 | 例子 |
+|---|---|---|
+| 转场 | 23 | 撞击硬切、故障撕裂、镜头冲压、频闪切、网点擦除、CRT 关机、碎玻璃、文字遮罩穿越、VS 撞屏、墨迹蔓延、天鹅绒幕布、网格瓷砖 |
+| 动态字 | 21 | 砸字、逐字级联、解码、分离翻板、数字滚轮、轮廓描边、RGB 疾冲字、类型墙、透视字平面、多行段落揭示、文字化为尘土 |
+| 镜头 | 13 | 镜头抖动、冲压变焦、手持漂移、希区柯克变焦、视差分层、拉焦、子弹时间、Kanada 透视甩入 |
+| 后期与打击 | 22 | RGB 分离、模拟/数字故障、VHS、CRT、胶片颗粒、半调网点、渐变映射、墨线描边、冲击波、光束、漏光、冲击帧、方形镜头 RGB 偏移、ASCII 字符化 |
+| 图形与 HUD | 18 | 速度线、描边星爆、放射爆发、碎片喷射、彩带、HUD 边框、锁定准星、遥测读数、进度环、路径描边、沿路径飞行、SVG 形状变形 |
+| 剪辑节奏 | 9 | 预告片开场、卡点加速、黑场砸下、频闪黑帧、闪光定格、变速定格、顿帧、一拍二切换、GSAP 缓动速查 |
+
+先看缩略总览再选：[转场](library/previews/transitions.jpg) · [动态字](library/previews/text.jpg) · [镜头](library/previews/camera.jpg) · [后期](library/previews/fx.jpg) · [图形](library/previews/shapes.jpg) · [节奏](library/previews/timing.jpg)，索引和用法见 [`library/README.md`](library/README.md)，每一类的详细说明（画面、用法、参数、注意事项）在 `library/catalog/`。
+
+来源：从 MIT / Apache-2.0 许可的优质项目里移植（54 个文件保留原作者版权头，许可全文见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) 和 `LICENSES/`），其余是原创，或只借鉴了思路、自己重写。已实测：类型检查通过、静态规则检查通过、逐个渲染通过，重复渲染同一帧 89 个像素级一致、其余 17 个最多差 2 个亮度级。
+
 ## 📊 一次真实项目的账本
 
 用这套流程复刻一条 36 秒的游戏联动 PV（57 镜头、8 幕），最终交付 1080p：
@@ -41,7 +58,7 @@
 |---|---|
 | 全程 / 活跃时间 | 66.7 小时 / 18.8 小时（活跃时间含 AI 自己跑的时间） |
 | 用户发的消息 | 113 条（44 条带截图） |
-| 模型轮数 / 输出 token | 11,467 轮 / 1,342 万（主控 Opus，子代理后期全部改用 Sonnet） |
+| 模型轮数 / 输出 token | 11,467 轮 / 1,342 万（主控以 Opus 为主、后期部分改用 Sonnet；子代理后期全部改用 Sonnet） |
 | AI 生成（静态素材为主） | 121 张图 + 9 段视频 = 1,184 即梦积分（按生成数反推） |
 | 白花的 | 9 段 AI 视频里 5 段没用上 → 所以现在动效一律用代码做，AI 只出静态图 |
 
@@ -59,10 +76,12 @@ git clone https://github.com/saikizhou-cyber/s17-motion-art.git "$HOME/.claude/s
 
 只给某个项目用：clone 到项目里的 `.claude/skills/s17-motion-art`。装好后输入 `/s17-motion-art`，或者直接说"帮我做一条 PV""1 比 1 复刻这条视频"，它会自动加载。
 
-**依赖**：Node.js 18+、[ffmpeg](https://ffmpeg.org/)（含 ffprobe）、Python 3.10+（`python -m pip install pillow numpy scipy`）。可选：[rembg](https://github.com/danielgatis/rembg)（抠图，建议单独建虚拟环境）、即梦画布 CLI 或任何图片生成工具（只用来出静态素材）。
+其他能读取 Agent Skills 格式（`SKILL.md`）的编程代理：把这个文件夹放进它们的 skills 目录（未逐一测试）。
+
+**依赖**：Node.js 18+、[ffmpeg](https://ffmpeg.org/)（含 ffprobe）、Python 3.10+（`python -m pip install pillow numpy scipy`；macOS/Linux 上用 `python3`）。可选：[rembg](https://github.com/danielgatis/rembg)（抠图，建议单独建虚拟环境）、即梦画布 CLI 或任何图片生成工具（只用来出静态素材）。
 
 - 文档里的命令按 POSIX shell 写，Windows 请用 Git Bash。
-- 工具默认按 **16:9、30fps、1280×720、合成名 `PV`** 工作。
+- 工具默认按 **16:9、30fps、1280×720、合成名 `PV`** 工作。其他规格的参考片先转成这个规格：`ffmpeg -i in.mp4 -vf fps=30,scale=1280:720 -an reference.mp4`。
 
 ## 💬 怎么用
 
@@ -103,7 +122,7 @@ flowchart LR
 七条铁律（详见 [`SKILL.md`](SKILL.md)）：
 
 1. 动效就是代码，且逐帧确定；AI 只出静态素材。
-2. 只做原创：角色、Logo、字标、界面、标志性道具、图形轮廓、歌词音乐都不生成、不抠、不描、不模仿。
+2. 只做原创：不生成、不抠取、不描摹、不模仿任何已有 IP 的角色、Logo、字标或标题组合字样、UI 皮肤、标志性道具、定制字体、歌词或音乐。
 3. 先静后动：方向、粗剪、关键静态板确认后才写动效；高潮先做。
 4. 量出来，不目测：画面、运动、音乐、成片都有测量工具；同一人物跨镜头只用一组位置参数。
 5. 做的人不评自己：子代理用中档模型干活，评审只看成片、两版对比交换顺序、修改附前后对比图。
@@ -115,9 +134,9 @@ flowchart LR
 | 用途 | 脚本 |
 |---|---|
 | 测量 | `frame_measure.py`（抽帧、取色、色块、外框、IoU）· `motion_fit.py`（运动 → Remotion 缓动/弹簧代码）· `cut_detect.py`（自动切点 + 带帧号复核图） |
-| 和参考片对照 | `compare.py` · `shotsheet.py` · `grid.py` · `strip.py` · `side-by-side.mjs`（只在本地看） |
+| 和参考片对照 | `compare.py` · `shotsheet.py` · `grid.py` · `strip.py` · `side-by-side.mjs`（只在本地看）· `contact_sheet.py`（没有参考片时看成片） |
 | 音乐与节奏 | `beat_check.py`（拍点网格、切点卡拍检查）· `audio_offset.py`（音画同步）· `animatic.py`（静态板 + 音乐 → 粗剪预演） |
-| 静态素材 | `cutout.py` · `cleanedge.py` · `bluekey.py` · `hairfix.py` · `irisglow.py` · `jm.py` · `jimeng_batch_run.py` · `jimeng_video_run.py` |
+| 静态素材 | `cutout.py` · `cleanedge.py` · `bluekey.py` · `hairfix.py` · `irisglow.py`（只是针对一个角色的示例：改里面的颜色常量）· `jm.py` · `jimeng_batch_run.py` · `jimeng_video_run.py` |
 | 渲染与质检 | `render-chunks.mjs`（分段渲染、拼接、换配乐、响度）· `film_scan.py`（静止、黑帧、闪白、逐镜头运动量对比） |
 | 复盘 | `transcript_stats.py`（用时、消息、各模型 token） |
 
@@ -156,10 +175,12 @@ s17-motion-art/
 │   ├── rebuild.md                # 复刻：拆片、测量、逐镜头对照
 │   ├── deliver.md                # 交付：渲染、配乐、质检、打包、复盘
 │   ├── pipeline-recipes.md       # 所有命令
-│   └── case-study-gamepv.md      # 真实项目复盘
-├── scripts/                      # 22 个工具脚本 + 共用模块 _shots.py
+│   └── case-study-gamepv.md      # 真实项目：用时、token、积分、踩坑
+├── library/                      # 106 个现成动效：core/ 共用件、effects/ 按类别、catalog/ 分类说明、previews/ 缩略总览、gallery/ 检查和 pick.py 复制工具
+├── scripts/                      # 23 个工具脚本 + 共用模块 _shots.py
 ├── assets/                       # README 用的演示图
-└── THIRD_PARTY_NOTICES.md        # 第三方代码许可
+├── LICENSES/Apache-2.0.txt       # 移植自 Apache-2.0 项目的代码所附许可全文
+└── THIRD_PARTY_NOTICES.md        # 第三方代码许可（cut_detect.py + 动效库里 54 个移植文件）
 ```
 
 ## ⚖️ 原创与版权
@@ -171,7 +192,7 @@ s17-motion-art/
 
 ## 📄 License
 
-代码与文档：[MIT](LICENSE)（`assets/` 除外）。`scripts/cut_detect.py` 的切点规则移植自 zenstory-ai/video-recap-skills（MIT），许可全文见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。依赖的 Remotion、rembg、ffmpeg 和各家生成服务有各自的许可和条款。
+代码与文档：[MIT](LICENSE)（`assets/` 除外）。`scripts/cut_detect.py` 和 `library/effects/` 里移植过来的文件保留各自原作的许可（MIT 或 Apache-2.0），逐项列在 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)，Apache-2.0 全文在 `LICENSES/`。依赖的 Remotion、rembg、ffmpeg 和各家生成服务有各自的许可和条款。
 
 ---
 

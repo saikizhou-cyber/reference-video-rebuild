@@ -17,6 +17,9 @@ near-still frames, cut frames excluded) and lists the shots that are much stille
 ended early, a hold left in) or much busier (jitter, drift, an AI clip moving more than the reference).
 On the case study this flagged S36 / S38 (42 % -> 79 % and 33 % -> 91 % still frames), S27 (stiller) and
 S49 / S50 (busier), and no other shot.
+--allow marks events you intended so they stop reading as defects: a comma list of shot ids (S16) or frame ranges (300-330),
+each optionally prefixed by an event kind (freeze:S16, black:S14, flash:90-92), e.g. --allow freeze:S16,black:S14. Allowed events are
+listed as `allowed`, and shots named in --allow are left out of the motion-vs-reference list. Write down why in the bible.
 Idea after the time overview of Zane-0x5a/remotion-director (MIT); this is an independent implementation.
 """
 import argparse
@@ -113,6 +116,27 @@ def shot_namer(shots):
     return lambda t: next((sid for sid, f0, f1 in shots if f0 <= round(t * 30) <= f1), '')
 
 
+def parse_allow(spec, shots, fps=30):
+    """[(kind or None, first_frame, last_frame)] from 'freeze:S16,black:S14,300-330'."""
+    out, ids = [], {sid: (f0, f1) for sid, f0, f1 in shots}
+    for part in [x.strip() for x in (spec or '').split(',') if x.strip()]:
+        kind, _, rng = part.rpartition(':')
+        kind = kind or None
+        if rng in ids:
+            out.append((kind, *ids[rng]))
+        elif '-' in rng and all(x.isdigit() for x in rng.split('-', 1)):
+            lo, hi = rng.split('-', 1)
+            out.append((kind, int(lo), int(hi)))
+        else:
+            sys.exit(f'--allow: {part!r} is neither a shot id from timeline.ts nor a frame range like 300-330')
+    return out
+
+
+def is_allowed(kind, ev, allow, fps=30):
+    f0, f1 = round(ev[0] * fps), round(ev[1] * fps)
+    return any(k in (None, kind) and f0 <= hi and f1 >= lo for k, lo, hi in allow)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('ours')
@@ -120,12 +144,14 @@ def main():
     ap.add_argument('--root')
     ap.add_argument('--freeze-min', type=float, default=0.2, help='shortest freeze reported, seconds')
     ap.add_argument('--freeze-noise', type=float, default=0.003, help='freezedetect noise tolerance')
+    ap.add_argument('--allow', help='intended events: shot ids or frame ranges, optionally kind-prefixed: freeze:S16,black:S14,300-330')
     a = ap.parse_args()
     for v in (a.ours, a.ref):
         if v and not os.path.exists(v):
             sys.exit(f'not found: {v}')
     shots = load_timeline(os.path.abspath(a.root or os.environ.get('PV_ROOT') or os.getcwd()))
     shot = shot_namer(shots)
+    allow = parse_allow(a.allow, shots) if a.allow else []
     ours, dur, ours_luma = scan(a.ours, a.freeze_noise, a.freeze_min)
     ref, ref_luma = None, None
     if a.ref:
@@ -138,6 +164,8 @@ def main():
         for e in events:
             other = ref[kind] + (loose['ref'] if kind == 'flash' else []) if ref is not None else []
             tag = '' if ref is None else ('both' if any(overlaps(e, r) for r in other) else 'OURS ONLY')
+            if allow and is_allowed(kind, e, allow):
+                tag = 'allowed'
             rows.append((e[0], kind, e, tag))
     if ref is not None:
         for kind, events in ref.items():
@@ -150,11 +178,15 @@ def main():
     print(f'{"time (s)":>15}  {"frames":>11}  {"kind":6}  {"len":>6}  {"shot":5}  status')
     for _, kind, (s, e), tag in rows:
         print(f'{s:7.2f}-{e:7.2f}  {round(s * 30):5d}-{round(e * 30):5d}  {kind:6}  {e - s:5.2f}s  {shot(s):5}  {tag}')
+    if ref is None:
+        left = sum(1 for r in rows if r[3] != 'allowed')
+        print(f'\n{left} event(s) to judge against intent' + (f' ({len(rows) - left} allowed)' if allow else '') + '.')
     if ref is not None:
         bad = sum(1 for r in rows if r[3] == 'OURS ONLY')
         print(f'\n{bad} event(s) the reference does not have; check each one on the frames.')
         if shots:
             moves = motion_report(a.ours, a.ref, shots)
+            moves = [m for m in moves if not any(k in (None, 'still') and lo <= m[1] and m[2] <= hi for k, lo, hi in allow)]
             print(f'\nmotion vs reference: {len(moves)} shot(s) differ' + (' (mean frame diff / share of still frames)' if moves else ''))
             for sid, f0, f1, mr, mo, sr, so, tag in moves:
                 print(f'  {sid:5} {f0:5d}-{f1:5d}  ref {mr:5.2f} / {sr:4.0%} still   ours {mo:5.2f} / {so:4.0%} still   {tag}')

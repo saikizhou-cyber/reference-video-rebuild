@@ -33,6 +33,23 @@ English · [中文](README.md)
 - `beat_check.py` measures a track's tempo grid and checks whether the cuts land on its accents.
 - `film_scan.py` finds freezes, black and flash frames the reference doesn't have, and shots that are stiller or busier than the reference.
 
+## 🧩 106 ready-made effects (`library/`)
+
+All code, frame-deterministic, written in 720p units so they work at any resolution, each with a preview and a one-line "when to use it". Copy only what you use with `python library/gallery/pick.py <id>,<id> --to src/s17` (it brings the `core/` parts the effects import and prints the npm packages they need), then set the props. Not limited to Remotion's own packages: three.js, GSAP, anime.js, Lottie, WebGL and canvas all work as long as the frame number drives them (timelines created paused and seeked per frame, no library running its own clock).
+
+| Category | Count | Examples |
+|---|---|---|
+| Transitions | 23 | impact cut, glitch tear, lens punch, strobe cut, halftone wipe, CRT power-off, shatter, text-mask zoom-through, VS slam, ink blot, velvet curtain, tile wipe |
+| Kinetic type | 21 | slam, per-character cascade, scramble decode, split-flap, number roll, outline draw, RGB rush type, type wall, perspective type plane, multi-line paragraph reveal, text turning to dust |
+| Camera | 13 | shake, crash zoom, handheld drift, dolly zoom, parallax stack, rack focus, bullet time, Kanada perspective snap |
+| Post FX and hits | 22 | RGB split, analog / digital glitch, VHS, CRT, film grain, halftone, gradient map, ink edges, shockwave, light streaks, light leak, impact frame, square lens RGB shift, ASCII glyph filter |
+| Shapes and HUD | 18 | speed lines, trim-path starburst, radial burst, shard spray, confetti, HUD frame, reticle lock, telemetry readout, progress ring, path draw, motion-path flight, SVG shape morph |
+| Edit timing | 9 | trailer hook, beat accelerando, blackout slam, strobe blackout, flash freeze, speed ramp, hit stop, on-twos / on-ones shift, GSAP ease lanes |
+
+Look first, then pick: [transitions](library/previews/transitions.jpg) · [type](library/previews/text.jpg) · [camera](library/previews/camera.jpg) · [post FX](library/previews/fx.jpg) · [shapes](library/previews/shapes.jpg) · [timing](library/previews/timing.jpg); the index of all effects and how to copy them are in [`library/README.md`](library/README.md), the details per category in `library/catalog/`.
+
+Sources: code ported from MIT / Apache-2.0 projects (54 files keep their original copyright header; licence texts in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSES/`), the rest original or reimplemented from an idea. Measured: type-check clean, static rule check clean, every demo renders, re-rendering the same frame is pixel-identical for 89 effects and within 2 levels of noise for the other 17.
+
 ## 📊 The ledger of one real project
 
 A 36-second game collaboration PV (57 shots, 8 acts), delivered in 1080p:
@@ -41,7 +58,7 @@ A 36-second game collaboration PV (57 shots, 8 acts), delivered in 1080p:
 |---|---|
 | Wall clock / active | 66.7 h / 18.8 h (active includes time the agents worked alone) |
 | User messages | 113 (44 with screenshots) |
-| Model turns / output tokens | 11,467 / 13.4 M (Opus main loop; sub-agents later all on Sonnet) |
+| Model turns / output tokens | 11,467 / 13.4 M (main loop mostly Opus, later partly Sonnet; sub-agents later all on Sonnet) |
 | AI generation (mostly stills) | 121 images + 9 clips = 1,184 Jimeng credits (derived from generation counts) |
 | Wasted | 5 of 9 AI clips unused → which is why motion is now always code and AI only makes stills |
 
@@ -107,7 +124,7 @@ flowchart LR
 Seven rules (details in [`SKILL.md`](SKILL.md)):
 
 1. Motion is code, and deterministic; AI makes still assets only.
-2. Original content only: never generate, cut out, trace or imitate characters, logos, wordmarks, UI skins, signature props, graphic outlines, lyrics or music.
+2. Original content only: never generate, cut out, trace or imitate a franchise character, logo, wordmark or title lockup, UI skin, signature prop, custom lettering, lyric or music.
 3. Still before motion: approve the direction, animatic and key static boards before animating; build the climax first.
 4. Measure, don't eyeball: frames, moves, music and the render each have a measuring tool; one set of placement numbers per figure across consecutive shots.
 5. Builders don't judge their own work: sub-agents build on a mid-tier model; critics see only the render, compare two versions in both orders, and every accepted fix comes with before/after frames.
@@ -119,9 +136,9 @@ Seven rules (details in [`SKILL.md`](SKILL.md)):
 | Job | Scripts |
 |---|---|
 | Measure | `frame_measure.py` (frame grab, colours, blobs, bbox, IoU) · `motion_fit.py` (a move → Remotion easing/spring code) · `cut_detect.py` (cuts + numbered review sheets) |
-| Compare with a reference | `compare.py` · `shotsheet.py` · `grid.py` · `strip.py` · `side-by-side.mjs` (local only) |
+| Compare with a reference | `compare.py` · `shotsheet.py` · `grid.py` · `strip.py` · `side-by-side.mjs` (local only) · `contact_sheet.py` (a film without a reference) |
 | Music and timing | `beat_check.py` (tempo grid; cuts vs accents) · `audio_offset.py` (A/V sync) · `animatic.py` (boards + music → rough cut) |
-| Still assets | `cutout.py` · `cleanedge.py` · `bluekey.py` · `hairfix.py` · `irisglow.py` · `jm.py` · `jimeng_batch_run.py` · `jimeng_video_run.py` |
+| Still assets | `cutout.py` · `cleanedge.py` · `bluekey.py` · `hairfix.py` · `irisglow.py` (examples for one character: edit their colour constants) · `jm.py` · `jimeng_batch_run.py` · `jimeng_video_run.py` |
 | Render and QA | `render-chunks.mjs` (chunks, join, music swap, loudness) · `film_scan.py` (freezes, black, flashes, per-shot motion vs reference) |
 | Retrospective | `transcript_stats.py` (time, messages, per-model tokens) |
 
@@ -161,9 +178,11 @@ s17-motion-art/
 │   ├── deliver.md                # deliver: render, music, QA, bundle, retrospective
 │   ├── pipeline-recipes.md       # every command
 │   └── case-study-gamepv.md      # the real project: time, tokens, credits, pitfalls
-├── scripts/                      # 22 tools + shared module _shots.py
+├── library/                      # 106 ready-made effects: core/ shared parts, effects/ by category, catalog/ per-category details, previews/ contact sheets, gallery/ checks and pick.py
+├── scripts/                      # 23 tools + shared module _shots.py
 ├── assets/                       # README demo media
-└── THIRD_PARTY_NOTICES.md        # third-party code licences
+├── LICENSES/Apache-2.0.txt       # licence text for code ported from Apache-2.0 projects
+└── THIRD_PARTY_NOTICES.md        # third-party code licences (cut_detect.py + 54 ported library files)
 ```
 
 ## ⚖️ Originality and copyright
@@ -175,7 +194,7 @@ s17-motion-art/
 
 ## 📄 License
 
-Code and docs: [MIT](LICENSE) (except `assets/`). The cut rule in `scripts/cut_detect.py` is ported from zenstory-ai/video-recap-skills (MIT); see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Remotion, rembg, ffmpeg and generation services have their own licenses and terms.
+Code and docs: [MIT](LICENSE) (except `assets/`). Code ported into `scripts/cut_detect.py` and `library/effects/` keeps its original licence (MIT or Apache-2.0), listed per file in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md); the Apache-2.0 text is in `LICENSES/`. Remotion, rembg, ffmpeg and generation services have their own licenses and terms.
 
 ---
 
