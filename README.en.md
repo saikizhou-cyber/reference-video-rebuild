@@ -9,14 +9,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-d97757)](https://code.claude.com/docs/en/skills)
 [![Effects](https://img.shields.io/badge/effects-106-ffd23f)](https://saikizhou-cyber.github.io/s17-motion-art/)
-[![Remotion](https://img.shields.io/badge/Remotion-4.x-0b84f3)](https://www.remotion.dev/)
-[![Deterministic](https://img.shields.io/badge/renders-frame--exact-8a63d2)](#-measured-not-promised)
+[![Remotion](https://img.shields.io/badge/Remotion-4.0.530%20tested-0b84f3)](https://www.remotion.dev/)
+[![Deterministic](https://img.shields.io/badge/renders-deterministic-8a63d2)](#-what-was-measured)
 
 [**Live gallery**](https://saikizhou-cyber.github.io/s17-motion-art/) · [Install](#-install-in-one-line) · [Usage](#-what-to-say) · [The effects](#-106-ready-made-effects) · English · [中文](README.md)
 
 <img src="assets/hero.gif" alt="Six of the library's effects playing: ink blot, slam text, dolly zoom, ASCII glyph filter, shatter and extruded type" width="100%">
 
-<sub>Real renders of the library's own demos. [See all of them move in the gallery.](https://saikizhou-cyber.github.io/s17-motion-art/)</sub>
+<sub>Real renders of the library's own demos. [See 66 of them move in the gallery.](https://saikizhou-cyber.github.io/s17-motion-art/)</sub>
 
 </div>
 
@@ -24,12 +24,25 @@
 
 ## Why this exists
 
-Most AI video tools give you a clip you cannot edit: change one word and you generate again. This skill works the other way round. **Motion is code** (React components driven by the frame number, rendered with [Remotion](https://www.remotion.dev/)), so every cut, ease and colour stays editable and every render is identical. AI is used only where code draws badly: still art such as characters, props and plates, and only when you have none of your own.
+Most AI video tools give you a clip you cannot edit: change one word and you generate again. This skill works the other way round. **Motion is code** (React components driven by the frame number, rendered with [Remotion](https://www.remotion.dev/)), so every cut, ease and colour stays editable and a re-render gives the same film. AI is used only where code draws badly: still art such as characters, props and plates, and only when you have none of your own.
 
 - **From an idea or a song to a film.** Three creative directions, a style bible, a beat-cut shot list, an animatic, then the film and a 1080p delivery with automatic QA.
 - **Cut to the music.** It measures your track's tempo grid, plans every shot on it and checks the finished film for freezes, flashes and cuts that drifted off the beat.
 - **A real effects library.** 106 transitions, kinetic-type, camera, post-FX, HUD and edit-timing effects you can drop into any Remotion project, each one a pure function of the frame.
-- **1:1 rebuilds of a reference.** Measure a reference video's cuts, colours and motion (easing and spring fits, perspective depth) and rebuild its structure with your own characters, copy and art.
+- **Rebuild a reference's structure and timing 1:1, with your own art.** Measure a reference video's cuts, colours and motion (easing and spring fits, perspective depth) and rebuild its structure with your own characters, copy and art; nothing from the reference is copied.
+
+### Which part do you need?
+
+| You want | Start with | You need |
+|---|---|---|
+| **Effects for your own Remotion project** | [`pick.py`](#-what-to-say) (no Claude needed) | a Remotion 4 project (tested 4.0.530); shader effects also need Chrome 149+, which Remotion downloads |
+| **A whole PV or trailer, cut to music** | `/s17-motion-art` in Claude Code | Claude Code (a paid plan or API usage), Node.js 18+, ffmpeg, Python 3.10+ |
+
+**How it differs:** AI video generators give you a clip you regenerate to change; After Effects presets and Lottie live on a GUI timeline; Remotion templates are whole-video starters. This is a library of small, copyable code effects plus an agent pipeline that plans the cuts on the music and checks the result.
+
+**Not for:** one-click films (you approve the direction, the animatic and the key boards), vertical 9:16 pipelines (the effects scale, but the reference-comparison tools assume 16:9), or tight budgets (the 36-second case study used 13.4 M output tokens; a 12-second test trailer took about half an hour of agent time).
+
+**Terms:** PV = promotional video (a game or anime trailer) · animatic = a rough cut of still boards timed to the music · kinetic type = animated text · beat grid = the frames on which the music's beats fall.
 
 ## 🚀 Install in one line
 
@@ -37,11 +50,19 @@ Most AI video tools give you a clip you cannot edit: change one word and you gen
 git clone --depth 1 https://github.com/saikizhou-cyber/s17-motion-art.git "$HOME/.claude/skills/s17-motion-art"
 ```
 
-Works in bash and PowerShell. For one project only, clone into `.claude/skills/s17-motion-art` inside it. Then type `/s17-motion-art`, or just say "make me a PV" or "rebuild this video 1:1"; the skill loads automatically. Other coding agents that read the Agent Skills format (`SKILL.md`): put the folder in their skills directory (not individually tested).
+About 35 MB; works in bash and PowerShell. For one project only, clone into `.claude/skills/s17-motion-art` inside it. Then type `/s17-motion-art`, or just say "make me a PV" or "rebuild this video 1:1"; the skill loads automatically. Other coding agents that read the Agent Skills format (`SKILL.md`): put the folder in their skills directory (not individually tested).
 
-**Requirements**: Node.js 18+, [ffmpeg](https://ffmpeg.org/) (with ffprobe), Python 3.10+ (`python -m pip install pillow numpy scipy`; `python3` on macOS/Linux). Optional: [rembg](https://github.com/danielgatis/rembg) for cutouts, the Jimeng (即梦) canvas CLI or any image generator (stills only). Commands in the docs are written for a POSIX shell; on Windows use Git Bash. The tools assume **16:9, 30 fps, a 1280×720 composition named `PV`**; conform other references first: `ffmpeg -i in.mp4 -vf fps=30,scale=1280:720 -an reference.mp4`.
+**Requirements**: [Claude Code](https://code.claude.com/) (a paid plan or API usage), Node.js 18+, [ffmpeg](https://ffmpeg.org/) (with ffprobe), Python 3.10+ (`python -m pip install pillow numpy scipy`; `python3` on macOS/Linux, `py -3` where `python` is not Python 3). Shader effects and transitions render in Chrome 149+ with a GL backend, which Remotion 4.0.5xx downloads (`swangle` without a GPU). Tested on Windows 11 + Git Bash. Optional: [rembg](https://github.com/danielgatis/rembg) for cutouts, the Jimeng (即梦) canvas CLI or any image generator (stills only). Commands in the docs are written for a POSIX shell; on Windows use Git Bash. The tools assume **16:9, 30 fps, a 1280×720 composition named `PV`**; conform other references first: `ffmpeg -i in.mp4 -vf fps=30,scale=1280:720 -an reference.mp4`.
 
 ## 💬 What to say
+
+Try it with nothing prepared (the fast lane for short films: no questions, code-drawn art, 0 credits):
+
+```text
+/s17-motion-art Make a 12-second kinetic-type trailer for a game called ECHO. Code only, no music, don't ask me questions.
+```
+
+With your own material:
 
 ```text
 /s17-motion-art Make a 30-second PV: an MC battle on a late-night radio show, starring my original
@@ -54,13 +75,14 @@ and an animatic for the one I pick.
 from ./cards/ and a logo of our own.
 ```
 
-Or use only the library, in any Remotion project:
+Or use only the library, in any Remotion project (no Claude needed). Run it from the project folder (Git Bash on Windows):
 
 ```bash
-python ~/.claude/skills/s17-motion-art/library/gallery/pick.py ink-blot,slam-text --to src/s17
+npx create-video@latest        # only if you have no Remotion project yet
+python ~/.claude/skills/s17-motion-art/library/gallery/pick.py slam-text --to src/s17
 ```
 
-It copies just those effects (plus the helpers they import) and prints the npm packages they need.
+It copies just that effect (plus the helpers it imports) and prints the npm packages it needs. Then put `<SlamText text="DRAW" />` inside a `<Sequence>` of your composition and run `npx remotion studio`. Each effect file ends with a `Demo` that shows real usage; the props are listed in [`library/catalog/`](library/catalog/).
 
 It is **not** one-click: you approve the direction, the animatic and the key static boards; the final quality depends on your standards and the number of review rounds.
 
@@ -80,7 +102,7 @@ It is **not** one-click: you approve the direction, the animatic and the key sta
 
 ## 🧩 106 ready-made effects
 
-All code, frame-deterministic, written in 720p units so they work at any resolution. Not limited to Remotion's own packages: three.js, GSAP, anime.js, Lottie, WebGL and canvas all work as long as the frame number drives them. **[Browse them all in the live gallery →](https://saikizhou-cyber.github.io/s17-motion-art/)**
+All code, frame-deterministic, written in 720p units so they work at any resolution. Not limited to Remotion's own packages: three.js, GSAP, anime.js, Lottie, WebGL and canvas all work as long as the frame number drives them. **[Browse all 106 in the live gallery (66 as clips) →](https://saikizhou-cyber.github.io/s17-motion-art/)**
 
 <table>
 <tr>
@@ -97,23 +119,23 @@ All code, frame-deterministic, written in 720p units so they work at any resolut
 </tr>
 </table>
 
-Copy only what you use with `python library/gallery/pick.py <id>,<id> --to src/s17`, then set the props. The index of all effects and how to copy them are in [`library/README.md`](library/README.md); each category has a table (what you see, when to use it, props, traps) in `library/catalog/`. Some effects carry a "watch out" note that was checked by rendering it, such as which frame is the hit.
+Copy only what you use with `python library/gallery/pick.py <id>,<id> --to src/s17`, then set the props. The index of all effects and how to copy them are in [`library/README.md`](library/README.md); each category has a table (what you see, when to use it, props) in `library/catalog/`, and six effects carry a "watch out" note that was checked by rendering, such as which frame is the hit.
 
 Sources: code ported from MIT / Apache-2.0 projects (54 files keep their original copyright header; licence texts in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and `LICENSES/`), the rest original or reimplemented from an idea.
 
-## 📏 Measured, not promised
+## 📏 What was measured
 
-- **Frame-exact:** re-rendering the same frame is pixel-identical for 89 effects and within 2 levels of rasteriser noise for the other 17; none depends on render order. `npm run lint` rejects `Math.random`, `Date`, timers and CSS animations.
-- **A/B against no skill:** in two blind trials on the same 12-second brief, judges who saw only the finished films preferred the one made with the skill over the one made without, in both viewing orders. The film made without it shipped audio muxed about 43 ms late, untagged full-range video and hazy grey flash frames, which the skill's checks (`audio_offset.py`, the pixel-format check, `film_scan.py`) exist to catch. Caveat: one brief, one run each, model judges.
+- **Deterministic renders:** each demo's middle frame rendered twice, with another frame in between: 89 effects pixel-identical, 17 within 2 levels of anti-aliasing rounding ([report](library/previews/determinism.txt); reproduce with `npm run previews` in `library/`). `npm run lint` is a static check of `effects/` that rejects `Math.random`, `Date`, timers and CSS animations; randomness comes from seeds.
+- **A/B against no skill:** two versions of the skill were each judged blind against the same film made without it (one 12-second brief, model judges who saw the films and their files). All four verdicts, two viewing orders each, picked the skill's film, one of them on a tied overall score. The no-skill run hit Remotion's audio mux running about 43 ms late and had to write its own onset check to find it (with the skill that is `audio_offset.py`), and it shipped full-range `yuvj420p` video with only a `bt470bg` matrix tag. Caveat: one brief, one no-skill film, model judges; the films are not published.
 - **A real project:** a 36-second game-collaboration PV (57 shots, 8 acts) delivered in 1080p; the ledger is below.
 
 | | Measured on that project |
 |---|---|
 | Wall clock / active | 66.7 h / 18.8 h (active includes time the agents worked alone) |
 | User messages | 113 (44 with screenshots) |
-| Model turns / output tokens | 11,467 / 13.4 M (main loop mostly Opus, later partly Sonnet; sub-agents later all on Sonnet) |
-| AI generation (mostly stills) | 121 images + 9 clips = 1,184 Jimeng credits (derived from generation counts) |
-| Wasted | 5 of 9 AI clips unused → which is why motion is now always code and AI only makes stills |
+| Model turns / output tokens | 11,467 / 13.4 M (main loop 778 Opus / 324 Sonnet turns; sub-agents moved to Sonnet after the user asked; Opus wrote 82.5 % of the output) |
+| AI generation (mostly stills) | 121 images + 9 clips = 1,184 Jimeng credits (estimated from generation counts × price) |
+| Wasted | 5 of 9 AI clips unused → so motion is code by default and an AI clip is a last resort for a pose already approved as a still |
 
 Full write-up: [`references/case-study-gamepv.md`](references/case-study-gamepv.md).
 

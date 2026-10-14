@@ -2,7 +2,7 @@
 
 Code-only motion effects for Remotion PVs, trailers and motion graphics: transitions, kinetic type, camera moves, post FX, shapes / HUD and edit-timing recipes. Every effect is a pure function of the frame (deterministic, renders the same every time), sized in 720p units so it scales to any composition, and has a gallery demo you can see in the contact sheets (`previews/<category>.jpg`, shown at the top of each `catalog/<category>.md`).
 
-**[See every effect move in the live gallery.](https://saikizhou-cyber.github.io/s17-motion-art/)**
+**[See 66 of the effects move in the live gallery](https://saikizhou-cyber.github.io/s17-motion-art/)**; every effect has a contact sheet in `previews/`.
 
 Collected from the best permissively licensed sources (MIT / Apache-2.0 / zlib / ISC) and rewritten for Remotion, plus effects generalised from a finished 57-shot PV. Ported code keeps its notice (file header + [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)); ideas from learn-only sources were reimplemented from scratch.
 

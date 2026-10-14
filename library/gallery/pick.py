@@ -81,9 +81,11 @@ def main():
     except OSError:
         versions = {}
     if packages:
-        print('needs npm packages: ' + ' '.join(f'{p}@{versions[p]}' if p in versions else p for p in sorted(packages)))
+        print('needs npm packages: ' + ' '.join(f'{p}@{versions[p]}' if p in versions else p for p in sorted(packages)) + ' (plus remotion and react)')
     else:
         print('needs nothing beyond react and remotion')
+    if not a.dry and not os.path.isfile('package.json'):
+        print('note: no package.json in the current folder; run this from your Remotion project (npx create-video@latest makes one)')
     print(f'{len(seen)} file(s) -> {a.to}')
 
 

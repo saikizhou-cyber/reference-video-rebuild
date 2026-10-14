@@ -1,0 +1,22 @@
+Determinism check of the gallery demos: output of gallery/determinism.py after gallery/previews.mjs --check (`npm run previews` runs both).
+Each effect: the middle frame of its demo rendered twice as full-size PNG, with another frame rendered in between.
+Run 2026-10-14 on Windows 11, Remotion 4.0.530, Chrome Headless Shell 149, GL backend angle.
+
+noise beat-words                0.0000% of pixels differ by > 6, max diff 1
+noise camera-shake              0.0000% of pixels differ by > 6, max diff 1
+noise flash-freeze              0.0000% of pixels differ by > 6, max diff 2
+noise glitch-text               0.0000% of pixels differ by > 6, max diff 1
+noise glow                      0.0000% of pixels differ by > 6, max diff 1
+noise mask-rise                 0.0000% of pixels differ by > 6, max diff 1
+noise number-roll               0.0000% of pixels differ by > 6, max diff 2
+noise outline-draw              0.0000% of pixels differ by > 6, max diff 1
+noise radial-burst              0.0000% of pixels differ by > 6, max diff 1
+noise riso-hit                  0.0000% of pixels differ by > 6, max diff 1
+noise rush-type                 0.0000% of pixels differ by > 6, max diff 1
+noise slam-text                 0.0000% of pixels differ by > 6, max diff 2
+noise slice-glitch              0.0000% of pixels differ by > 6, max diff 1
+noise sliced-text               0.0000% of pixels differ by > 6, max diff 2
+noise slow-push                 0.0000% of pixels differ by > 6, max diff 1
+noise type-plane                0.0000% of pixels differ by > 6, max diff 1
+noise versus-slam               0.0000% of pixels differ by > 6, max diff 2
+89 identical, 17 within noise, 0 FAIL of 106

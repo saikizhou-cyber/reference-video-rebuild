@@ -1,5 +1,7 @@
 <div align="center">
 
+[English](README.en.md) · 中文
+
 <img src="assets/banner.png" alt="S17 艺术动效：用代码做 PV、预告片和动态字" width="100%">
 
 # S17 艺术动效 · s17-motion-art
@@ -9,14 +11,14 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-d97757)](https://code.claude.com/docs/en/skills)
 [![Effects](https://img.shields.io/badge/特效-106-ffd23f)](https://saikizhou-cyber.github.io/s17-motion-art/)
-[![Remotion](https://img.shields.io/badge/Remotion-4.x-0b84f3)](https://www.remotion.dev/)
-[![Deterministic](https://img.shields.io/badge/渲染-逐帧精确-8a63d2)](#-实测不靠承诺)
+[![Remotion](https://img.shields.io/badge/Remotion-4.0.530%20实测-0b84f3)](https://www.remotion.dev/)
+[![Deterministic](https://img.shields.io/badge/渲染-确定性-8a63d2)](#-实测记录)
 
-[**在线画廊**](https://saikizhou-cyber.github.io/s17-motion-art/) · [安装](#-一行安装) · [怎么用](#-怎么用) · [特效库](#-106-个现成特效) · [English](README.en.md) · 中文
+[**在线画廊**](https://saikizhou-cyber.github.io/s17-motion-art/) · [安装](#-一行安装) · [怎么用](#-怎么用) · [特效库](#-106-个现成特效)
 
 <img src="assets/hero.gif" alt="六个特效的实际播放：墨迹晕开、砸字、希区柯克变焦、ASCII 字符化、碎裂、立体挤出字" width="100%">
 
-<sub>都是特效库自带演示的真实渲染。[到在线画廊看它们全部动起来。](https://saikizhou-cyber.github.io/s17-motion-art/)</sub>
+<sub>都是特效库自带演示的真实渲染。[到在线画廊看其中 66 个动起来。](https://saikizhou-cyber.github.io/s17-motion-art/)</sub>
 
 </div>
 
@@ -24,12 +26,25 @@
 
 ## 为什么做这个
 
-大多数 AI 视频工具给你的是一段改不了的片子：想改一个字，就得重新生成。这个技能反过来：**动效就是代码**（由帧号驱动的 React 组件，用 [Remotion](https://www.remotion.dev/) 渲染），每一个切点、缓动、颜色都能改，每次渲染结果一模一样。AI 只用在代码画不好的地方：角色、道具、底图这类静态图，而且只在你自己没有素材时才用。
+大多数 AI 视频工具给你的是一段改不了的片子：想改一个字，就得重新生成。这个技能反过来：**动效就是代码**（由帧号驱动的 React 组件，用 [Remotion](https://www.remotion.dev/) 渲染），每一个切点、缓动、颜色都能改，重新渲染得到的还是同一条片子。AI 只用在代码画不好的地方：角色、道具、底图这类静态图，而且只在你自己没有素材时才用。
 
 - **从想法或一首歌到成片。** 三个创意方向、风格圣经、按拍点切好的镜头清单、粗剪预演，再到成片和带自动质检的 1080p 交付。
 - **卡着音乐剪。** 先量出音乐的节拍网格，每个镜头都按网格规划，成片出来后检查有没有静止、闪白和跑偏的切点。
 - **一个真正的特效库。** 106 个转场、动态字、镜头、后期、HUD 和剪辑节奏特效，可以直接放进任何 Remotion 工程，每个都是帧号的纯函数。
-- **1:1 复刻参考片。** 把参考视频的切点、配色和运动（缓动、弹簧拟合、透视深度）量出来，用你自己的角色、文案和美术重建它的结构。
+- **按参考片 1:1 复刻结构和节奏，画面内容全部原创。** 把参考视频的切点、配色和运动（缓动、弹簧拟合、透视深度）量出来，用你自己的角色、文案和美术重建它的结构；参考片里的东西一样都不搬。
+
+### 你需要哪一部分？
+
+| 你想要 | 从这里开始 | 需要什么 |
+|---|---|---|
+| **给自己的 Remotion 工程加特效** | [`pick.py`](#-怎么用)（不需要 Claude） | 一个 Remotion 4 工程（实测 4.0.530）；着色器类特效还需要 Chrome 149+，Remotion 会自动下载 |
+| **一整条卡着音乐剪的 PV 或预告片** | 在 Claude Code 里用 `/s17-motion-art` | Claude Code（付费订阅或 API 用量）、Node.js 18+、ffmpeg、Python 3.10+ |
+
+**和别的工具有什么不同：** AI 视频生成工具给你一段片子，想改就得重新生成；AE 模板和 Lottie 要在图形界面的时间线上调；Remotion 模板是整条视频的起步工程。这里是一个能单独复制的小代码特效库，加上一条会按音乐规划切点、再检查成片的智能体流程。
+
+**不适合：** 想一键出片（方向、粗剪、关键静态板都要你点头）；竖屏 9:16 的整套流程（特效能缩放，但和参考片对照的工具只支持 16:9）；预算很紧（36 秒的案例用了 1,342 万输出 token；一条 12 秒的测试预告片大约跑了半小时）。
+
+**名词：** PV = 宣传片（游戏、动画的预告片）· 粗剪预演 = 按音乐排好时间的静态分镜 · 动态字 = 会动的文字 · 拍点网格 = 音乐重拍落在哪些帧上 · 一拍二 = 每两帧换一次画面。
 
 ## 🚀 一行安装
 
@@ -37,11 +52,19 @@
 git clone --depth 1 https://github.com/saikizhou-cyber/s17-motion-art.git "$HOME/.claude/skills/s17-motion-art"
 ```
 
-bash 和 PowerShell 都能用。只给某个项目用：clone 到项目里的 `.claude/skills/s17-motion-art`。装好后输入 `/s17-motion-art`，或者直接说"帮我做一条 PV""1 比 1 复刻这条视频"，它会自动加载。其他能读取 Agent Skills 格式（`SKILL.md`）的编程代理：把这个文件夹放进它们的 skills 目录（未逐一测试）。
+约 35 MB，bash 和 PowerShell 都能用。只给某个项目用：clone 到项目里的 `.claude/skills/s17-motion-art`。装好后输入 `/s17-motion-art`，或者直接说"帮我做一条 PV""1 比 1 复刻这条视频"，它会自动加载。其他能读取 Agent Skills 格式（`SKILL.md`）的编程代理：把这个文件夹放进它们的 skills 目录（未逐一测试）。
 
-**依赖**：Node.js 18+、[ffmpeg](https://ffmpeg.org/)（含 ffprobe）、Python 3.10+（`python -m pip install pillow numpy scipy`；macOS/Linux 上用 `python3`）。可选：[rembg](https://github.com/danielgatis/rembg)（抠图）、即梦画布 CLI 或任何图片生成工具（只用来出静态素材）。文档里的命令按 POSIX shell 写，Windows 请用 Git Bash。工具默认按 **16:9、30fps、1280×720、合成名 `PV`** 工作；其他规格的参考片先转换：`ffmpeg -i in.mp4 -vf fps=30,scale=1280:720 -an reference.mp4`。
+**依赖**：[Claude Code](https://code.claude.com/)（付费订阅或 API 用量）、Node.js 18+、[ffmpeg](https://ffmpeg.org/)（含 ffprobe）、Python 3.10+（`python -m pip install pillow numpy scipy`；macOS/Linux 上用 `python3`，`python` 不是 Python 3 时用 `py -3`）。着色器类特效和转场在 Chrome 149+ 的 GL 后端里渲染，Remotion 4.0.5xx 会自动下载（没有显卡用 `swangle`）。实测环境：Windows 11 + Git Bash。Remotion 对个人、3 人以内的营利公司和非营利组织免费，详见下面的常见问题。可选：[rembg](https://github.com/danielgatis/rembg)（抠图）、即梦画布 CLI 或任何图片生成工具（只用来出静态素材）。文档里的命令按 POSIX shell 写，Windows 请用 Git Bash。工具默认按 **16:9、30fps、1280×720、合成名 `PV`** 工作；其他规格的参考片先转换：`ffmpeg -i in.mp4 -vf fps=30,scale=1280:720 -an reference.mp4`。
 
 ## 💬 怎么用
+
+什么都不准备也能试（短片快速通道：不问问题、素材全用代码画、不花积分）：
+
+```text
+/s17-motion-art 给一款叫 ECHO 的游戏做一条 12 秒的动态字预告片。全部用代码，不要音乐，不要问我问题。
+```
+
+用你自己的素材：
 
 ```text
 /s17-motion-art 帮我做一条 30 秒的 PV：深夜电台里的 MC 对决，主角是我的原创角色（设定在 ./oc.md），
@@ -52,13 +75,14 @@ bash 和 PowerShell 都能用。只给某个项目用：clone 到项目里的 `.
 /s17-motion-art 1:1 复刻 ./reference.mp4 的镜头结构和节奏，角色换成 ./cards/ 里的角色卡，Logo 自己设计。
 ```
 
-只想用特效库，在任何 Remotion 工程里：
+只想用特效库，在任何 Remotion 工程里（不需要 Claude），在工程文件夹里运行（Windows 用 Git Bash）：
 
 ```bash
-python ~/.claude/skills/s17-motion-art/library/gallery/pick.py ink-blot,slam-text --to src/s17
+npx create-video@latest        # 还没有 Remotion 工程时才需要
+python ~/.claude/skills/s17-motion-art/library/gallery/pick.py slam-text --to src/s17
 ```
 
-它只复制你点名的特效（连同它们引用的辅助文件），并打印需要装的 npm 包。
+它只复制你点名的特效（连同它引用的辅助文件），并打印需要装的 npm 包。然后在你的合成里放一个 `<Sequence>`，里面写 `<SlamText text="DRAW" />`，运行 `npx remotion studio` 就能看到。每个特效文件末尾都有一个 `Demo` 示范真实用法；参数列在 [`library/catalog/`](library/catalog/)。
 
 过程中可以这样说：
 
@@ -87,7 +111,7 @@ S30 到 S33 是同一个人物，前后大小位置要一致
 
 ## 🧩 106 个现成特效
 
-全部是代码，逐帧确定，按 720p 单位写、任意分辨率都能用。不限于 Remotion 自带的包：three.js、GSAP、anime.js、Lottie、WebGL、canvas 都能用，只要动画由帧号驱动。**[到在线画廊把它们全部看一遍 →](https://saikizhou-cyber.github.io/s17-motion-art/)**
+全部是代码，逐帧确定，按 720p 单位写、任意分辨率都能用。不限于 Remotion 自带的包：three.js、GSAP、anime.js、Lottie、WebGL、canvas 都能用，只要动画由帧号驱动。**[到在线画廊浏览全部 106 个（其中 66 个有视频）→](https://saikizhou-cyber.github.io/s17-motion-art/)**
 
 <table>
 <tr>
@@ -104,23 +128,23 @@ S30 到 S33 是同一个人物，前后大小位置要一致
 </tr>
 </table>
 
-用 `python library/gallery/pick.py <id>,<id> --to src/s17` 只复制用到的特效，再改参数。索引和用法见 [`library/README.md`](library/README.md)，每一类的详细说明（画面、用法、参数、注意事项）在 `library/catalog/`。有些特效带一条"注意"，都是渲染实测过的，比如命中点在第几帧。
+用 `python library/gallery/pick.py <id>,<id> --to src/s17` 只复制用到的特效，再改参数。索引和用法见 [`library/README.md`](library/README.md)，每一类的详细说明（画面、用法、参数）在 `library/catalog/`，其中 6 个特效带一条渲染实测过的"注意"，比如命中点在第几帧。
 
 来源：从 MIT / Apache-2.0 许可的优质项目里移植（54 个文件保留原作者版权头，许可全文见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) 和 `LICENSES/`），其余是原创，或只借鉴了思路、自己重写。
 
-## 📏 实测，不靠承诺
+## 📏 实测记录
 
-- **逐帧精确：** 同一帧重复渲染，89 个特效像素完全一致，其余 17 个最多差 2 个亮度级（抗锯齿取整），没有哪个依赖渲染顺序。`npm run lint` 会拒绝 `Math.random`、`Date`、定时器和 CSS 动画。
-- **对照"没有这个技能"：** 同一份 12 秒简报做了两轮盲评，评审只看成片，两种观看顺序都选了用这个技能做的那一条。没用技能的那条成片带了约 43 ms 的音画延迟、没有颜色标签的全范围视频和发灰的闪白帧，这些正是技能里的检查（`audio_offset.py`、像素格式检查、`film_scan.py`）要拦住的。注意：只有一份简报、各跑一次、评审是模型。
+- **渲染结果确定：** 每个演示的中间帧渲染两次（中间夹一帧别的）：89 个特效像素完全一致，17 个最多差 2 个亮度级（抗锯齿取整）（[报告](library/previews/determinism.txt)；在 `library/` 里运行 `npm run previews` 可以复现）。`npm run lint` 是对 `effects/` 的静态检查，会拒绝 `Math.random`、`Date`、定时器和 CSS 动画；随机都来自种子。
+- **对照"没有这个技能"：** 两个版本的技能分别和同一条没用技能做的片子做盲评（同一份 12 秒简报，评审是模型，看的是成片和文件）。四次裁决、每次两种观看顺序，都选了用技能做的那条，其中一次总分打平。没用技能的那次运行撞上了 Remotion 自带混音晚约 43 ms 的问题，只能自己写起音检测才找到（用技能就是一条 `audio_offset.py`），交付的视频还是全范围 `yuvj420p`、只带 `bt470bg` 矩阵标签。注意：只有一份简报、一条无技能片、评审是模型，成片没有公开。
 - **一个真实项目：** 36 秒的游戏联动 PV（57 个镜头、8 幕），交付 1080p，账本如下。
 
 | 项目 | 该项目实测 |
 |---|---|
 | 全程 / 活跃时间 | 66.7 小时 / 18.8 小时（活跃时间含 AI 自己跑的时间） |
 | 用户发的消息 | 113 条（44 条带截图） |
-| 模型轮数 / 输出 token | 11,467 轮 / 1,342 万（主控以 Opus 为主、后期部分改用 Sonnet；子代理后期全部改用 Sonnet） |
-| AI 生成（静态素材为主） | 121 张图 + 9 段视频 = 1,184 即梦积分（按生成数反推） |
-| 白花的 | 9 段 AI 视频里 5 段没用上 → 所以现在动效一律用代码做，AI 只出静态图 |
+| 模型轮数 / 输出 token | 11,467 轮 / 1,342 万（主控 Opus 778 轮、Sonnet 324 轮；用户要求后新开的子代理都改用 Sonnet；82.5% 的输出由 Opus 写） |
+| AI 生成（静态素材为主） | 121 张图 + 9 段视频 = 1,184 即梦积分（按生成数 × 单价估算） |
+| 白花的 | 9 段 AI 视频里 5 段没用上 → 所以现在动效默认用代码做，AI 视频只在姿势已经以静态图确认过时才作为最后手段 |
 
 完整复盘见 [`references/case-study-gamepv.md`](references/case-study-gamepv.md)。
 
