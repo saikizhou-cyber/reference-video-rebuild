@@ -2,6 +2,8 @@
 
 Code-only motion effects for Remotion PVs, trailers and motion graphics: transitions, kinetic type, camera moves, post FX, shapes / HUD and edit-timing recipes. Every effect is a pure function of the frame (deterministic, renders the same every time), sized in 720p units so it scales to any composition, and has a gallery demo you can see in the contact sheets (`previews/<category>.jpg`, shown at the top of each `catalog/<category>.md`).
 
+**[See every effect move in the live gallery.](https://saikizhou-cyber.github.io/s17-motion-art/)**
+
 Collected from the best permissively licensed sources (MIT / Apache-2.0 / zlib / ISC) and rewritten for Remotion, plus effects generalised from a finished 57-shot PV. Ported code keeps its notice (file header + [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)); ideas from learn-only sources were reimplemented from scratch.
 
 ## Use an effect
@@ -91,6 +93,7 @@ cd library && npm i
 npm run studio       # every demo, grouped by category (Remotion Studio)
 npm run typecheck    # tsc
 npm run lint         # python gallery/lint.py: deterministic code, declared packages, metadata, ported headers, registration
+npm run demos        # one small silent mp4 per effect -> out/demos/ (add --only id,id to render a few)
 npm run previews     # render stills + determinism check (same frame twice, another frame in between) + contact sheets -> previews/
 npm run catalog      # (after previews) rewrite the index above, catalog/*.md and the library section of ../THIRD_PARTY_NOTICES.md
 ```

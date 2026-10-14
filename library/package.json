@@ -7,6 +7,7 @@
 		"studio": "remotion studio gallery/index.ts",
 		"typecheck": "tsc --noEmit",
 		"lint": "python gallery/lint.py",
+		"demos": "node gallery/demos.mjs",
 		"previews": "node gallery/previews.mjs --check && python gallery/determinism.py out/previews && python gallery/sheet.py out/previews previews",
 		"catalog": "python gallery/catalog.py out/previews && python gallery/notices.py"
 	},
